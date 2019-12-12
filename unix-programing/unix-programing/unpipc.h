@@ -149,7 +149,8 @@
 #define	DIR_MODE	(FILE_MODE | S_IXUSR | S_IXGRP | S_IXOTH)
 					/* default permissions for new directories */
 /* $$.ix [DIR_MODE]~constant,~definition~of$$ */
-
+#define MSG_R 000400
+#define MSG_W 000200
 #define	SVMSG_MODE	(MSG_R | MSG_W | MSG_R>>3 | MSG_R>>6)
 					/* default permissions for new SV message queues */
 /* $$.ix [SVMSG_MODE]~constant,~definition~of$$ */
@@ -162,6 +163,9 @@
 #define    FIFO1    "/tmp/fifo.1"
 #define    FIFO2    "/tmp/fifo.2"
 #define    SERV_FIFO    "/tmp/fifo.serv"
+#define    MQ_KEY1    1234L
+#define    MQ_KEY2    2345L
+
 
 typedef	void	Sigfunc(int);	/* for signal handlers */
 
@@ -177,6 +181,7 @@ struct timespec {
   time_t	tv_sec;		/* seconds */
   long		tv_nsec;	/* and nanoseconds */
 };
+
 /* $$.It timespec$$ */
 /* $$.Ib tv_sec$$ */
 /* $$.Ib tv_nsec$$ */

@@ -146,3 +146,65 @@ err_doit(int errnoflag, int level, const char *fmt, va_list ap)
     }
     return;
 }
+
+//MARK: - 信号处理
+
+Sigfunc* Signal(int signo, Sigfunc* func)
+{
+    struct sigaction act, oldact;
+    act.sa_handler = func;
+    //sa_mask置空，意味着除了被捕获的信号之外的信号都不会被阻断
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    
+    if (signo == SIGALRM) {
+#ifdef SA_INTERRUPT
+        act.sa_flags |= SA_INTERRUPT;
+#endif
+    }
+    else{
+        /*
+         一些IO系统调用执行时, 如 read 等待输入期间, 如果收到一个信号,系统将中断read, 转而执行信号处理函数. 当信号处理返回后, 系统遇到了一个问题:
+         是重新开始这个系统调用, 还是让系统调用失败?早期UNIX系统的做法是, 中断系统调用, 并让系统调用失败, 比如read返回 -1, 同时设置 errno 为
+         EINTR, 但是中断了的系统调用是没有完成的调用, 它的失败是临时性的, 如果再次调用则可能成功, 这并不是真正的失败, 所以要对这种情况进行处理:
+         我们可以从信号的角度来解决这个问题,  安装信号的时候, 设置 SA_RESTART属性, 那么当信号处理函数返回后, 被该信号中断的系统调用将自动恢复.
+         */
+#ifdef SA_RESTART
+        act.sa_flags |= SA_RESTART;
+#endif
+    }
+    //oldact保存信号中断之前的设置的信号处理函数的指针，也就是act的信息
+    if (sigaction(signo, &act, &oldact) < 0) {
+        return SIG_ERR;
+    }
+    return oldact.sa_handler;
+    
+}
+
+
+void sig_chld(int signo)
+{
+    pid_t    pid;
+    int        stat;
+
+    while ( (pid = waitpid(-1, &stat, WNOHANG)) > 0) {
+        printf("child %d terminated\n", pid);
+    }
+    return;
+}
+
+//MARK:- 多线程
+int
+set_concurrency(int level)
+{
+    // vonzhou
+    // on Linux we have pthread_setconcurrency
+    return(pthread_setconcurrency(level));
+}
+
+void
+Set_concurrency(int level)
+{
+    if (set_concurrency(level) != 0)
+        err_sys("set_concurrency error");
+}
