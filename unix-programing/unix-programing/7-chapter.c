@@ -39,6 +39,7 @@ produce_1(void *arg)
     }
 }
 
+
 void *
 consume_1(void *arg)
 {

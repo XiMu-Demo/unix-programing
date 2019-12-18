@@ -30,9 +30,10 @@ main(int argc, char **argv)
             break;
         }
     }
+    printf("%d--%d",optind, argc);
+
     if (optind != argc - 1)
         err_quit("usage: msgrcv [ -n ] [ -t type ] <pathname>");
-
     mqid = msgget(ftok(argv[optind], 0), MSG_R);
 
     buff = malloc(MAXMSG);
