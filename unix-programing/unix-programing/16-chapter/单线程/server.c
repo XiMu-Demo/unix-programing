@@ -9,6 +9,7 @@
 #include    "../../unpipc.c"
 #include    "square.h"
 
+
 //MARK:- 单线程服务端
 square_out *
 squareproc_1_svc(square_in *inp, struct svc_req *rqstp)
